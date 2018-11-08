@@ -1,15 +1,12 @@
 /*
-
  numberOfValidTrackerHits() = numberOfValidPixelHits()+numberOfValidStripHits()
 
 */
-
 
 // system include files
 #include <memory>
 #include <fstream>
 // user include files
-
 //Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -24,7 +21,6 @@
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -46,11 +42,9 @@
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
@@ -58,13 +52,10 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
-
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
@@ -85,7 +76,6 @@ using namespace std;
 //TFile f("/afs/cern.ch/work/o/oshkola/MyEDMAnalyzer/CMSSW_8_0_24_patch1/src/Demo/DemoAnalyzer/plugins/Run2015_254232.root");
 //TFile f("muonTeV_1.root");
 
-
 //To use multiple input files
 std::vector<std::string> fileNames;
 
@@ -96,9 +86,7 @@ std::string EndFile = ".root";
 
 std::string CommonPathMC = "/eos/cms/store/cmst3/user/querten/15_03_25_HSCP_Run2EDMFiles/";
 
-
 // class intiialization
-
 class DemoAnalyzer : public edm::EDAnalyzer {
 public:
   explicit DemoAnalyzer(const edm::ParameterSet&);
@@ -137,15 +125,10 @@ private:
 
 //default constructor
 DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& iConfig)
-{
-
-}
-
+{}
 //destructor with no parameters
 DemoAnalyzer::~DemoAnalyzer()
-{
-
-}
+{}
 
 void
 DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -168,7 +151,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       std::cout << Runs2016[i] << std::endl;
       fileNames.push_back(CommonPath + Runs2016[i] + EndFile);
-
     }
   }
 
@@ -178,16 +160,14 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       fileNames.push_back(CommonPathMC + RunMC_PPStau494 + EndFile);
     }
   }
-
   // authorize Tree up to 2 Terabytes <- taken from standard hscp code
   TTree::SetMaxTreeSize(1000 * Long64_t(2000000000));
   MyTree = tfs->make<TTree> ("HscpTree", "HscpTree");
 
-
+  //changed #define MAX_HSCPS = 10000;
   const unsigned int MAX_HSCPS =  10000;
   const unsigned int MAX_TRACKS = 10000;
   const unsigned int MAX_MUONS =  10000;
-
 
   unsigned int    event_num;
   unsigned int    lumi_sec;
@@ -219,7 +199,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   double          mucoll_eta                    [MAX_MUONS];
   double          mucoll_phi                    [MAX_MUONS];
 
-
   double          trk_valid_frac                [MAX_HSCPS];
   double          hscp_p                        [MAX_HSCPS];
   double          hscp_pt_trkref                [MAX_HSCPS];
@@ -227,8 +206,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   double          hscp_pt_comb_mu               [MAX_HSCPS];
   double          hscp_pt_inner_trk             [MAX_HSCPS];
   double          hscp_pterr_trkref             [MAX_HSCPS];
-
-
   double          track_eta                     [MAX_HSCPS];
   double          muon_eta                      [MAX_HSCPS];
   double          track_phi                     [MAX_HSCPS];
@@ -244,7 +221,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   MyTree->Branch("event_num"                   , &event_num            , "event_num/I");
   MyTree->Branch("lumi_sec"                    , &lumi_sec             , "lumi_sec/I");
-
   MyTree->Branch("run_num"                     , &run_num              , "run_num/I");
   MyTree->Branch("NHSCPs"                      , &NHSCPs               , "NHSCPs/I");
   MyTree->Branch("NTRACKs"                     , &NTRACKs              , "NTRACKs/I");
@@ -260,8 +236,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MyTree->Branch("trkcoll_num_valid_csc_hits"                   , trkcoll_num_valid_csc_hits               , "trkcoll_num_valid_csc_hits[NTRACKs]/I");
   MyTree->Branch("trkcoll_num_valid_rpc_hits"                   , trkcoll_num_valid_rpc_hits               , "trkcoll_num_valid_rpc_hits[NTRACKs]/I");
   MyTree->Branch("trkcoll_high_purity"                          , trkcoll_high_purity                      , "trkcoll_high_purity[NTRACKs]/I");
-
-
   MyTree->Branch("trkcoll_pt"                  , trkcoll_pt            , "trkcoll_pt[NTRACKs]/D");
   MyTree->Branch("trkcoll_pt_err"              , trkcoll_pt_err        , "trkcoll_pt_err[NTRACKs]/D");
   MyTree->Branch("trkcoll_eta"                 , trkcoll_eta           , "trkcoll_eta[NTRACKs]/D");
@@ -271,7 +245,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MyTree->Branch("trkcoll_valid_frac"          , trkcoll_valid_frac    , "trkcoll_valid_frac[NTRACKs]/D");
   MyTree->Branch("trkcoll_dz"                  , trkcoll_dz            , "trkcoll_dz[NTRACKs]/D");
   MyTree->Branch("trkcoll_dxy"                 , trkcoll_dxy           , "trkcoll_dxy[NTRACKs]/D");
-
 
   MyTree->Branch("mucoll_pt"                   , mucoll_pt             , "mucoll_pt[NMUONs]/D");
   MyTree->Branch("mucoll_eta"                  , mucoll_eta            , "mucoll_eta[NMUONs]/D");
@@ -284,12 +257,10 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MyTree->Branch("hscp_pt_comb_mu"             , hscp_pt_comb_mu       , "hscp_pt_comb_mu[NHSCPs]/D");
   MyTree->Branch("hscp_pt_inner_trk"           , hscp_pt_inner_trk     , "hscp_pt_inner_trk[NHSCPs]/D");
   MyTree->Branch("hscp_pterr_trkref"           , hscp_pterr_trkref     , "hscp_pterr_trkref[NHSCPs]/D");
-
   MyTree->Branch("track_eta"                   , track_eta             , "track_eta[NHSCPs]/D");
   MyTree->Branch("muon_eta"                    , muon_eta              , "muon_eta[NHSCPs]/D");
   MyTree->Branch("track_phi"                   , track_phi             , "track_phi[NHSCPs]/D");
   MyTree->Branch("muon_phi"                    , muon_phi              , "muon_phi[NHSCPs]/D");
-
   MyTree->Branch("num_valid_tracker_hits"                       , num_valid_tracker_hits                   , "num_valid_tracker_hits[NHSCPs]/I");
   MyTree->Branch("num_valid_pixel_hits"                         , num_valid_pixel_hits                     , "num_valid_pixel_hits[NHSCPs]/I");
   MyTree->Branch("num_valid_strip_hits"                         , num_valid_strip_hits                     , "num_valid_strip_hits[NHSCPs]/I");
@@ -326,8 +297,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   tofCalculator.loadTimeOffset("/afs/cern.ch/work/o/oshkola/MyEDMAnalyzer/CMSSW_8_0_24_patch1/src/Demo/DemoAnalyzer/plugins/MuonTimeOffset.txt");
 
   unsigned int CurrentRun = 0;
-
-
 //  For one input file
 //fwlite::Event ev(&f);
 
@@ -342,7 +311,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // for (Long64_t index = 0; index < ev.size(); index++)
   for (Long64_t index = 0; index < 10000; index++)
   {
-
     ev.to(index);
 
     //Event progress counter
@@ -361,7 +329,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     event_num = ev.eventAuxiliary().event();
     lumi_sec = ev.eventAuxiliary().luminosityBlock();
     run_num = ev.eventAuxiliary().run();
-
 
     //Collection of hscp candidates
     fwlite::Handle<susybsm::HSCParticleCollection> hscpCollH;
@@ -426,11 +393,8 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     const ValueMap<susybsm::HSCPIsolation>& IsolationMap = *IsolationH.product();
 
-
-
     //need to access Track Collection because hitpattern.numberOfMuonHits gives 0 in hscp collection
     //and also i can't extract segment compatibility from hscp collection
-
 
     NTRACKs = 0;
 
@@ -466,7 +430,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       NTRACKs++;
      }
 
-
     NMUONs = 0;
 
     vector<double> muon_pt_fromcoll;
@@ -494,7 +457,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       NMUONs++;
     }
-
 
     NHSCPs = 0;
 
@@ -547,14 +509,12 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       num_valid_dt_hits [NHSCPs] = hp.numberOfValidMuonDTHits();
       num_valid_csc_hits [NHSCPs] = hp.numberOfValidMuonCSCHits();
 
-
       string muonref, trackref, isstandalone, isglobal, iscombined;
       muonr.isNull() ? muonref = "no" : muonref = "yes";
       track.isNull() ? trackref = "no" : trackref = "yes";
       (muonr.isNonnull() && muonr->combinedMuon().isNonnull()) ? iscombined = "yes" : iscombined = "no";
       (muonr.isNonnull() && muonr->standAloneMuon().isNonnull()) ? isstandalone = "yes" : isstandalone = "no";
       muonr->isGlobalMuon() ? isglobal = "yes" : isglobal = "no";
-
 
       // double muon_segment_compatibility = -110;
       // for (unsigned int i = 0; i < muon_pt_fromcoll.size(); i++)
