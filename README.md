@@ -1,6 +1,6 @@
 `Run the analyzer on real data`
 
-1. Inside the DemoAnalyzer, provide the path to the directory with input files and number of data runs:
+1. Inside the DemoAnalyzer, provide the path to the directory with input files and list of data runs:
  
  ` string CommonPath`
   
