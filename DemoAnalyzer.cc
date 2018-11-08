@@ -62,9 +62,9 @@
 
 #include "Analysis_CommonFunction.h"
 #include "Analysis_TOFUtility.h"
+
 #include "TCanvas.h"
 #include "TPad.h"
-
 
 using namespace edm;
 using namespace std;
@@ -95,8 +95,7 @@ private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-
-
+ 
   // ----------member data ---------------------------
 
   //Initialize output tree
@@ -144,7 +143,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       fileNames.push_back(CommonPath + Runs2016[i] + EndFile);
     }
   }
-
   else
   { for (unsigned int i = 1; i < 2; i++)
     {
