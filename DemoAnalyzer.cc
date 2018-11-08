@@ -101,23 +101,18 @@ private:
   // ----------member data ---------------------------
 
   //Initialize output tree
-
   TTree*  MyTree;
-
   edm::Service<TFileService> tfs;
-
 
   //Labels for usage of MuonTimeExtraMap <- syntax is taken from standard hscp code
   std::string        TOF_Label       = "combined";
   std::string        TOFdt_Label     = "dt";
   std::string        TOFcsc_Label    = "csc";
-
   /*
     std::string        dEdxS_Label     = "dedxASmi";
     std::string        dEdxS_Legend    = "I_{as}";
     std::string        dEdxM_Label     = "dedxHarm2";
     std::string        dEdxM_Legend    = "I_{h} (MeV/cm)";
-
   */
 }; //end class initialization
 
@@ -139,7 +134,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 //  std::string Runs2016[nruns] = {"279116","279479", "279588", "279653", "279654", "279656", "279658", "279667", "279681", "279682"};
   std::string Runs2016[nruns] = {"279975"};
-  //  std::string Runs2016[nruns] = {"279766"};
   //std::string RunsMC[2] = { "PPStau_13TeV_M1599", "PPStau_13TeV_M494"};
   std::string RunMC_PPStau494 = "PPStau_13TeV_M1599";
 
@@ -161,8 +155,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // authorize Tree up to 2 Terabytes <- taken from standard hscp code
   TTree::SetMaxTreeSize(1000 * Long64_t(2000000000));
   MyTree = tfs->make<TTree> ("HscpTree", "HscpTree");
-
-  //changed #define MAX_HSCPS = 10000;
+ 
   const unsigned int MAX_HSCPS =  10000;
   const unsigned int MAX_TRACKS = 10000;
   const unsigned int MAX_MUONS =  10000;
@@ -214,7 +207,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   int             num_valid_mu_hits             [MAX_HSCPS];
   int             num_valid_dt_hits             [MAX_HSCPS];
   int             num_valid_csc_hits            [MAX_HSCPS];
-
 
 
   MyTree->Branch("event_num"                   , &event_num            , "event_num/I");
@@ -290,18 +282,18 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   moduleGeom::loadGeometry("/afs/cern.ch/work/o/oshkola/MyEDMAnalyzer/CMSSW_8_0_24_patch1/src/Demo/DemoAnalyzer/plugins/CMS_GeomTree.root");
-
   muonTimingCalculator tofCalculator;
   tofCalculator.loadTimeOffset("/afs/cern.ch/work/o/oshkola/MyEDMAnalyzer/CMSSW_8_0_24_patch1/src/Demo/DemoAnalyzer/plugins/MuonTimeOffset.txt");
 
   unsigned int CurrentRun = 0;
-//  For one input file
+ 
+//For one input file
 //fwlite::Event ev(&f);
 
 //For several input files (members of string vector fileNames)
-
   fwlite::ChainEvent ev(fileNames);
-  std::cout << "ev size = " << ev.size() << std::endl;
+  
+ std::cout << "ev size = " << ev.size() << std::endl;
 
 //  ofstream file;
 //  file.open("out_info.txt");
@@ -313,7 +305,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //Event progress counter
     Int_t percent = index * (1.0 / ev.size()) * 100;
-
     std::cout << "\r" << std::string(percent / 5, '|') << percent << "%";
     std::cout.flush();
 
@@ -428,8 +419,9 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       NTRACKs++;
      }
 
+   
     NMUONs = 0;
-
+   
     vector<double> muon_pt_fromcoll;
     vector<double> segment_compatibility;
 
@@ -456,6 +448,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       NMUONs++;
     }
 
+   
     NHSCPs = 0;
 
     vector<int> qualind;
@@ -554,7 +547,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       isTight ? tight = "yes" : tight = "no";
 
       /*
-
       file << ".................Location................." << endl;
       file << " run number = " << run_num << " luminosity block =  " << lumi_sec << " event =  " << event_num  << endl;
       file << "................Kinematics..............." << endl;
@@ -577,7 +569,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         file << "N of valid CSC hits = " << ncsc[i] << endl;
         // }
       }
-
       file << ".....Check hscp cand-e has ref......" << endl;
       file << " has muon reference? " << muonref << endl;
       file << " has track reference? " << trackref << endl;
@@ -592,7 +583,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         file << " fraction of valid track hits = " << track->validFraction() << endl;
         file << " chi2/ndof = " << track->normalizedChi2() << endl;
       }
-
       file << "..............Muon quality.............." << endl;
       file << " is global? " << isglobal << endl;
       file << " is standalone? " << isstandalone << endl;
@@ -623,7 +613,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       } else file << "track is null" << endl;
       file << endl << endl;
       */
-
 
       //Ias and Ih DeDx estimators
       const reco::DeDxHitInfo* dedxHits = NULL;
