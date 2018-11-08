@@ -1,4 +1,3 @@
-
 # initialize MessageLogger and output report
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -11,7 +10,6 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.options   = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound'))
-
 
 process.source = cms.Source("PoolSource",
                                 # replace 'myfile.root' with the source file you want to use
@@ -30,7 +28,6 @@ process.source = cms.Source("PoolSource",
 #process.demo = cms.EDAnalyzer('DemoAnalyzer',
 
  #                                        minTracks=cms.untracked.uint32(0)
-
 process.demo = cms.EDAnalyzer('DemoAnalyzer'                                  
                               )
 
