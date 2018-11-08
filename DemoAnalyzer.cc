@@ -1,8 +1,6 @@
 /*
  numberOfValidTrackerHits() = numberOfValidPixelHits()+numberOfValidStripHits()
-
 */
-
 // system include files
 #include <memory>
 #include <fstream>
