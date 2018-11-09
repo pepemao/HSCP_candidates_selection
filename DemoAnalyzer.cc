@@ -82,7 +82,6 @@ std::string EndFile = ".root";
 std::string CommonPathMC = "/eos/cms/store/cmst3/user/querten/15_03_25_HSCP_Run2EDMFiles/";
 
 // class intiialization
-
 class DemoAnalyzer : public edm::EDAnalyzer {
 public:
   explicit DemoAnalyzer(const edm::ParameterSet&);
@@ -98,7 +97,6 @@ private:
   // ----------member data ---------------------------
 
   //Initialize output tree
-
   TTree*  MyTree;
   edm::Service<TFileService> tfs;
  
@@ -142,7 +140,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       fileNames.push_back(CommonPath + Runs2016[i] + EndFile);
     }
   }
-
   else
   { for (unsigned int i = 1; i < 2; i++)
     {
