@@ -1,11 +1,9 @@
 /*
  numberOfValidTrackerHits() = numberOfValidPixelHits()+numberOfValidStripHits()
 */
-
 // system include files
 #include <memory>
 #include <fstream>
-// user include files
 
 //Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
