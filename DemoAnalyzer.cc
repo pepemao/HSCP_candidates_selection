@@ -72,7 +72,6 @@ using namespace std;
 //TFile f("/afs/cern.ch/work/o/oshkola/MyEDMAnalyzer/CMSSW_8_0_24_patch1/src/Demo/DemoAnalyzer/plugins/Run2015_254232.root");
 //TFile f("muonTeV_1.root");
 
-
 //To use multiple input files
 std::vector<std::string> fileNames;
 
@@ -80,9 +79,7 @@ std::string CommonPath = "root://se.cis.gov.pl//cms/store/user/fruboes/HSCP_2017
 std::string Run2015 = "2015_";
 std::string Run2016 = "2016_";
 std::string EndFile = ".root";
-
 std::string CommonPathMC = "/eos/cms/store/cmst3/user/querten/15_03_25_HSCP_Run2EDMFiles/";
-
 
 // class intiialization
 
@@ -98,16 +95,12 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
 
-
   // ----------member data ---------------------------
 
   //Initialize output tree
 
   TTree*  MyTree;
-
-  edm::Service<TFileService> tfs;
-
-
+ 
   //Labels for usage of MuonTimeExtraMap <- syntax is taken from standard hscp code
   std::string        TOF_Label       = "combined";
   std::string        TOFdt_Label     = "dt";
@@ -118,20 +111,15 @@ private:
     std::string        dEdxS_Legend    = "I_{as}";
     std::string        dEdxM_Label     = "dedxHarm2";
     std::string        dEdxM_Legend    = "I_{h} (MeV/cm)";
-
   */
 }; //end class initialization
 
 //default constructor
 DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& iConfig)
-{
-
-}
+{}
 //destructor with no parameters
 DemoAnalyzer::~DemoAnalyzer()
-{
-
-}
+{}
 
 void
 DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -141,10 +129,8 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   bool isMC = false;
 
   unsigned int nruns = 1;
-
-//  std::string Runs2016[nruns] = {"279116","279479", "279588", "279653", "279654", "279656", "279658", "279667", "279681", "279682"};
+ 
   std::string Runs2016[nruns] = {"279975"};
-  //  std::string Runs2016[nruns] = {"279766"};
   //std::string RunsMC[2] = { "PPStau_13TeV_M1599", "PPStau_13TeV_M494"};
   std::string RunMC_PPStau494 = "PPStau_13TeV_M1599";
 
@@ -154,7 +140,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       std::cout << Runs2016[i] << std::endl;
       fileNames.push_back(CommonPath + Runs2016[i] + EndFile);
-
     }
   }
 
@@ -337,12 +322,10 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // for (Long64_t index = 0; index < ev.size(); index++)
   for (Long64_t index = 0; index < 50000; index++)
   {
-
     ev.to(index);
 
     //Event progress counter
     Int_t percent = index * (1.0 / ev.size()) * 100;
-
     std::cout << "\r" << std::string(percent / 5, '|') << percent << "%";
     std::cout.flush();
 
@@ -356,7 +339,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     event_num = ev.eventAuxiliary().event();
     lumi_sec = ev.eventAuxiliary().luminosityBlock();
     run_num = ev.eventAuxiliary().run();
-
 
     //Collection of hscp candidates
     fwlite::Handle<susybsm::HSCParticleCollection> hscpCollH;
@@ -453,7 +435,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hscp_track_eta.push_back(track->eta());
       hscp_track_phi.push_back(track->phi());
 
-
       hscp_pt_trkref                 [NHSCPs]  = track->pt();
       hscp_pt_muref                  [NHSCPs]  = muonr->pt();
       if (muonr->combinedMuon().isNonnull())
@@ -528,10 +509,8 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       isLoose ? loose = "yes" : loose = "no";
       isMedium ? medium = "yes" : medium = "no";
       isTight ? tight = "yes" : tight = "no";
-
-
+     
       /*
-
       file << ".................Location................." << endl;
       file << " run number = " << run_num << " luminosity block =  " << lumi_sec << " event =  " << event_num  << endl;
       file << "................Kinematics..............." << endl;
@@ -660,10 +639,9 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     } //end of loop over hscp candidates;
 
+   
     NTRACKs = 0;
-
-    cout << "Number of hscp cand-s = " << hscp_track_eta.size() << endl;
-
+   
     for (size_t i = 0; i < TrackColH->size();  i++)
     {
       const  reco::Track & tr = (*TrackColH)[i];
@@ -673,10 +651,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (tr.eta() < -2.5)  continue;
 
       const reco::HitPattern& hp = tr.hitPattern();
-
-      cout << "trkcoll_pt = " << tr.pt() << endl;
-
-
+     
       trkcoll_num_valid_tracker_hits  [NTRACKs] = hp.numberOfValidTrackerHits();
       trkcoll_num_lost_tracker_hits   [NTRACKs] = hp.numberOfLostTrackerHits(reco::HitPattern::HitCategory::TRACK_HITS);
       trkcoll_num_valid_pixel_hits    [NTRACKs] = hp.numberOfValidPixelHits();
@@ -698,7 +673,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (hscp_track_eta.size() == 0)
       {
-        trkcoll_has_hscp                [NTRACKs] = 0;
+        trkcoll_has_hscp              [NTRACKs] = 0;
       }
    /*
       double dR = -10;
@@ -744,10 +719,10 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       cout << "Dr out of asso loop = " << dR << endl;
 */
-
       NTRACKs++;
     }
 
+   
     NMUONs = 0;
 
     vector<double> muon_pt_fromcoll;
@@ -775,7 +750,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       NMUONs++;
     }
-
 
     MyTree->Fill();
   } //end of the event loop
