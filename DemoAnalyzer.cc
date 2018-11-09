@@ -106,7 +106,6 @@ private:
   std::string        TOF_Label       = "combined";
   std::string        TOFdt_Label     = "dt";
   std::string        TOFcsc_Label    = "csc";
-
   /*
     std::string        dEdxS_Label     = "dedxASmi";
     std::string        dEdxS_Legend    = "I_{as}";
