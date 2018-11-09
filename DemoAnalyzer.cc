@@ -100,6 +100,7 @@ private:
   //Initialize output tree
 
   TTree*  MyTree;
+  edm::Service<TFileService> tfs;
  
   //Labels for usage of MuonTimeExtraMap <- syntax is taken from standard hscp code
   std::string        TOF_Label       = "combined";
