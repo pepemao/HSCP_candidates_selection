@@ -1,7 +1,6 @@
 /*
  numberOfValidTrackerHits() = numberOfValidPixelHits()+numberOfValidStripHits()
 */
-
 // system include files
 #include <memory>
 #include <fstream>
@@ -21,7 +20,6 @@
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -127,7 +125,6 @@ void
 DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-
 
   bool isMC = false;
 
