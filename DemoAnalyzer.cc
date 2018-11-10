@@ -1,9 +1,11 @@
 /*
  numberOfValidTrackerHits() = numberOfValidPixelHits()+numberOfValidStripHits()
 */
+
 // system include files
 #include <memory>
 #include <fstream>
+// user include files
 
 //Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -82,6 +84,7 @@ std::string EndFile = ".root";
 std::string CommonPathMC = "/eos/cms/store/cmst3/user/querten/15_03_25_HSCP_Run2EDMFiles/";
 
 // class intiialization
+
 class DemoAnalyzer : public edm::EDAnalyzer {
 public:
   explicit DemoAnalyzer(const edm::ParameterSet&);
@@ -97,9 +100,10 @@ private:
   // ----------member data ---------------------------
 
   //Initialize output tree
+
   TTree*  MyTree;
   edm::Service<TFileService> tfs;
- 
+
   //Labels for usage of MuonTimeExtraMap <- syntax is taken from standard hscp code
   std::string        TOF_Label       = "combined";
   std::string        TOFdt_Label     = "dt";
@@ -124,11 +128,12 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
+
   bool isMC = false;
 
   unsigned int nruns = 1;
- 
-  std::string Runs2016[nruns] = {"279975"};
+
+  std::string Runs2016[nruns] = {"279683"};
   //std::string RunsMC[2] = { "PPStau_13TeV_M1599", "PPStau_13TeV_M494"};
   std::string RunMC_PPStau494 = "PPStau_13TeV_M1599";
 
@@ -212,7 +217,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   double hscp_dxy                        [MAX_HSCPS];
   double hscp_dz                         [MAX_HSCPS];
   double hscp_trk_sum_pt                 [MAX_HSCPS];
-
+  int    hscp_qual_ind                   [MAX_HSCPS];
 
   MyTree->Branch("event_num"                            , &event_num            , "event_num/I");
   MyTree->Branch("lumi_sec"                             , &lumi_sec             , "lumi_sec/I");
@@ -231,7 +236,6 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MyTree->Branch("trkcoll_num_valid_csc_hits"         , trkcoll_num_valid_csc_hits         , "trkcoll_num_valid_csc_hits[NTRACKs]/I");
   MyTree->Branch("trkcoll_num_valid_rpc_hits"         , trkcoll_num_valid_rpc_hits         , "trkcoll_num_valid_rpc_hits[NTRACKs]/I");
   MyTree->Branch("trkcoll_high_purity"                , trkcoll_high_purity                , "trkcoll_high_purity[NTRACKs]/I");
-
   MyTree->Branch("trkcoll_pt"                         , trkcoll_pt                         , "trkcoll_pt[NTRACKs]/D");
   MyTree->Branch("trkcoll_pt_err"                     , trkcoll_pt_err                     , "trkcoll_pt_err[NTRACKs]/D");
   MyTree->Branch("trkcoll_eta"                        , trkcoll_eta                        , "trkcoll_eta[NTRACKs]/D");
@@ -246,7 +250,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MyTree->Branch("mucoll_pt"                          , mucoll_pt                          , "mucoll_pt[NMUONs]/D");
   MyTree->Branch("mucoll_eta"                         , mucoll_eta                         , "mucoll_eta[NMUONs]/D");
   MyTree->Branch("mucoll_phi"                         , mucoll_phi                         , "mucoll_phi[NMUONs]/D");
-   
+
   MyTree->Branch("hscp_trk_valid_frac"                , hscp_trk_valid_frac                , "hscp_trk_valid_frac[NHSCPs]/D");
   MyTree->Branch("hscp_p"                             , hscp_p                             , "hscp_p[NHSCPs]/D");
   MyTree->Branch("hscp_pt_trkref"                     , hscp_pt_trkref                     , "hscp_pt_trkref[NHSCPs]/D");
@@ -254,12 +258,10 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MyTree->Branch("hscp_pt_comb_mu"                    , hscp_pt_comb_mu                    , "hscp_pt_comb_mu[NHSCPs]/D");
   MyTree->Branch("hscp_pt_inner_trk"                  , hscp_pt_inner_trk                  , "hscp_pt_inner_trk[NHSCPs]/D");
   MyTree->Branch("hscp_pterr_trkref"                  , hscp_pterr_trkref                  , "hscp_pterr_trkref[NHSCPs]/D");
-
   MyTree->Branch("hscp_track_eta"                     , hscp_track_eta                     , "hscp_track_eta[NHSCPs]/D");
   MyTree->Branch("hscp_muon_eta"                      , hscp_muon_eta                      , "hscp_muon_eta[NHSCPs]/D");
   MyTree->Branch("hscp_track_phi"                     , hscp_track_phi                     , "hscp_track_phi[NHSCPs]/D");
   MyTree->Branch("hscp_muon_phi"                      , hscp_muon_phi                      , "hscp_muon_phi[NHSCPs]/D");
-
   MyTree->Branch("hscp_num_valid_tracker_hits"        , hscp_num_valid_tracker_hits        , "hscp_num_valid_tracker_hits[NHSCPs]/I");
   MyTree->Branch("hscp_num_valid_pixel_hits"          , hscp_num_valid_pixel_hits          , "hscp_num_valid_pixel_hits[NHSCPs]/I");
   MyTree->Branch("hscp_num_valid_strip_hits"          , hscp_num_valid_strip_hits          , "hscp_num_valid_strip_hits[NHSCPs]/I");
@@ -275,12 +277,12 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MyTree->Branch("hscp_dxy"                           , hscp_dxy                           , "hscp_dxy[NHSCPs]/D");
   MyTree->Branch("hscp_dz"                            , hscp_dz                            , "hscp_dz[NHSCPs]/D");
   MyTree->Branch("hscp_trk_sum_pt"                    , hscp_trk_sum_pt                    , "hscp_trk_sum_pt[NHSCPs]/D");
+  MyTree->Branch("hscp_qual_ind"                      , hscp_qual_ind                      , "hscp_qual_ind[NHSCPs]/I");
   //Scale Factors for dE/dx measurements
   double dEdxSF [2] = {
     1.00000,   // [0]  unchanged
     1.21836    // [1]  Pixel data to SiStrip data
   };
-
   TH3F* dEdxTemplates = NULL;
   dedxGainCorrector trackerCorrector;
 
@@ -290,6 +292,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   } else {
     trackerCorrector.TrackerGains = NULL; //FIXME check gain for MC
   }
+
   if (!isMC) {
     dEdxTemplates = loadDeDxTemplate("/afs/cern.ch/work/o/oshkola/MyEDMAnalyzer/CMSSW_8_0_24_patch1/src/Demo/DemoAnalyzer/plugins/Data13TeV_Deco_SiStripDeDxMip_3D_Rcd_v2_CCwCI.root", true);
   }
@@ -316,8 +319,8 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  ofstream file;
 //  file.open("out_info.txt");
 
-// for (Long64_t index = 0; index < ev.size(); index++)
-  for (Long64_t index = 0; index < 50000; index++)
+  for (Long64_t index = 0; index < ev.size(); index++)
+// for (Long64_t index = 0; index < 50000; index++)
   {
     ev.to(index);
 
@@ -403,11 +406,36 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //need to access Track Collection because hitpattern.numberOfMuonHits gives 0 in hscp collection
     //and also i can't extract segment compatibility from hscp collection
 
+    NMUONs = 0;
+
+    vector<double> muon_pt_fromcoll;
+    vector<double> segment_compatibility;
+
+    for (size_t i = 0; i < MuonCollH->size();  i++)
+    {
+      if (!MuonCollH.isValid()) {cout << "muon coll is not valid" << endl; continue;}
+
+      const  reco::Muon & p = (*MuonCollH)[i];
+
+      if (p.pt() < 55) continue;
+      if (p.eta() > 2.5) continue;
+      if (p.eta() < -2.5)  continue;
+
+      mucoll_pt   [NMUONs] = p.pt();
+      mucoll_eta  [NMUONs] = p.eta();
+      mucoll_phi  [NMUONs] = p.phi();
+
+      muon_pt_fromcoll.push_back(p.pt());
+      segment_compatibility.push_back(muon::segmentCompatibility(p));
+
+      NMUONs++;
+    }
+
+
     NHSCPs = 0;
 
     vector <double> hscp_track_eta;
     vector <double> hscp_track_phi;
-    vector<int> qualind;
 
     for (unsigned int c = 0; c < hscpColl.size(); c++) {
 
@@ -432,6 +460,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hscp_track_eta.push_back(track->eta());
       hscp_track_phi.push_back(track->phi());
 
+      hscp_p                         [NHSCPs]  = track->p();
       hscp_pt_trkref                 [NHSCPs]  = track->pt();
       hscp_pt_muref                  [NHSCPs]  = muonr->pt();
       if (muonr->combinedMuon().isNonnull())
@@ -444,7 +473,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         hscp_pt_inner_trk            [NHSCPs] = muonr->innerTrack()->pt();
       }
       else hscp_pt_inner_trk         [NHSCPs] = -1;
-      
+
       hscp_pterr_trkref              [NHSCPs] = track->ptError() / track->pt();
       hscp_trk_valid_frac            [NHSCPs] = track->validFraction();
       hscp_track_eta                 [NHSCPs] = track->eta();
@@ -460,7 +489,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hscp_chi2_ndof                 [NHSCPs] = track->chi2() / track->ndof();
       hscp_dxy                       [NHSCPs] = track->dxy(vertexColl[c].position());
       hscp_dz                        [NHSCPs] = track->dz(vertexColl[c].position());
-      
+
       string muonref, trackref, isstandalone, isglobal, iscombined;
       muonr.isNull() ? muonref = "no" : muonref = "yes";
       track.isNull() ? trackref = "no" : trackref = "yes";
@@ -468,13 +497,20 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       (muonr.isNonnull() && muonr->standAloneMuon().isNonnull()) ? isstandalone = "yes" : isstandalone = "no";
       muonr->isGlobalMuon() ? isglobal = "yes" : isglobal = "no";
 
-      // double muon_segment_compatibility = -110;
-      // for (unsigned int i = 0; i < muon_pt_fromcoll.size(); i++)
-      // {
-      //  if (muonr->pt() == muon_pt_fromcoll[i]) { muon_segment_compatibility = segment_compatibility[i]; }
+      double muon_segment_compatibility = -110;
+      double muon_dxy_cosm = -110;
+      double muon_dz_cosm = - 110;
+      for (unsigned int i = 0; i < muon_pt_fromcoll.size(); i++)
+      {
+        if (muonr->pt() == muon_pt_fromcoll[i])
+        {
+          muon_segment_compatibility = segment_compatibility[i];
+          //   muon_dxy_cosm = muon_dxy[i];
+          // muon_dz_cosm = muon_dz[i];
+        }
 
-      // }
-      // if (muon_segment_compatibility == -100) cout << "SOMETHING IS GOING WRONG WITH SEGMENT COMPATIBILITY \b";
+      }
+      if (muon_segment_compatibility == -100) cout << "SOMETHING IS GOING WRONG WITH SEGMENT COMPATIBILITY \n";
 
       //define Loose muon
       bool isLoose = muonr->isPFMuon() && (muonr->isGlobalMuon() || muonr->isTrackerMuon());
@@ -484,29 +520,19 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         muonr->combinedQuality().chi2LocalPosition < 12 &&
                         muonr->combinedQuality().trkKink < 20 ;
 
-      bool isMedium = isLoose && muonr->innerTrack()->validFraction() > 0.8;
-      //               muon_segment_compatibility > (goodGlobal ? 0.303 : 0.451);
+      bool isMedium = isLoose && muonr->innerTrack()->validFraction() > 0.8 &&
+                      muon_segment_compatibility > (goodGlobal ? 0.303 : 0.451);
 
       //define Tight muon
       bool isTight = muonr->isGlobalMuon() &&  muonr->isPFMuon() && muonr->globalTrack().isNonnull() && muonr->globalTrack()->normalizedChi2() < 10. &&
                      muonr->globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && muonr->numberOfMatchedStations() > 1 &&
                      muonr->muonBestTrack().isNonnull() &&
-                     fabs(track->dxy(vertexColl[c].position())) < 0.2 &&
-                     fabs(track->dz(vertexColl[c].position())) < 0.5 &&
-                     // fabs(muonr->muonBestTrack()->dxy(vertexColl[c].position())) < 0.2 &&
-                     // fabs(muonr->muonBestTrack()->dz(vertexColl[c].position())) < 0.5 &&
-
-                     //    fabs(muonr->bestTrack()->dxy(vertexColl[c].position())) < 0.2 &&
-                     //  fabs(muonr->bestTrack()->dz(vertexColl[c].position())) < 0.5 &&
+                     abs(track->dxy(vertexColl[c].position())) < 0.2 &&
+                     abs(track->dz(vertexColl[c].position())) < 0.5 &&
                      muonr->innerTrack().isNonnull() &&
                      muonr->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
                      muonr->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5;
 
-      string loose, medium, tight;
-      isLoose ? loose = "yes" : loose = "no";
-      isMedium ? medium = "yes" : medium = "no";
-      isTight ? tight = "yes" : tight = "no";
-     
       /*
       file << ".................Location................." << endl;
       file << " run number = " << run_num << " luminosity block =  " << lumi_sec << " event =  " << event_num  << endl;
@@ -625,20 +651,20 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hscp_calo_e_over_trk_p       [NHSCPs] = (hscpIso.Get_ECAL_Energy() + hscpIso.Get_HCAL_Energy()) / track->p();
       hscp_trk_sum_pt              [NHSCPs] = hscpIso.Get_TK_SumEt();
 
-      if (isLoose && isMedium && isTight) qualind.push_back(111);
-      else if (isLoose && isMedium && !isTight) qualind.push_back(110);
-      else if (isLoose && !isMedium && !isTight) qualind.push_back(100);
-      else if (!isLoose && !isMedium && !isTight) qualind.push_back(-1);
-      else if (isLoose && !isMedium && isTight) qualind.push_back(101);
-      else {qualind.push_back(-1);}
+      if (isLoose && isMedium && isTight) hscp_qual_ind [NHSCPs] = 111;
+      else if (isLoose && isMedium && !isTight) hscp_qual_ind[NHSCPs] = 110;
+      else if (isLoose && !isMedium && !isTight) hscp_qual_ind [NHSCPs] = 100;
+      else if (isLoose && !isMedium && isTight) hscp_qual_ind [NHSCPs] = 101;
+      else if (!isLoose && isMedium && isTight) hscp_qual_ind [NHSCPs] = 1011;
+      else if (!isLoose && !isMedium && !isTight) hscp_qual_ind [NHSCPs] = 0;
 
       NHSCPs++;
 
     } //end of loop over hscp candidates;
 
-   
+    cout << "6\n";
     NTRACKs = 0;
-   
+
     for (size_t i = 0; i < TrackColH->size();  i++)
     {
       const  reco::Track & tr = (*TrackColH)[i];
@@ -648,7 +674,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (tr.eta() < -2.5)  continue;
 
       const reco::HitPattern& hp = tr.hitPattern();
-     
+
       trkcoll_num_valid_tracker_hits  [NTRACKs] = hp.numberOfValidTrackerHits();
       trkcoll_num_lost_tracker_hits   [NTRACKs] = hp.numberOfLostTrackerHits(reco::HitPattern::HitCategory::TRACK_HITS);
       trkcoll_num_valid_pixel_hits    [NTRACKs] = hp.numberOfValidPixelHits();
@@ -672,80 +698,51 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
         trkcoll_has_hscp              [NTRACKs] = 0;
       }
-   /*
-      double dR = -10;
-   
-      if (hscp_track_eta.size() > 0)
-      {
-       
-        //association between hscp_tracks with tracks from reco::TrackCollection
-        for (unsigned int t = 0; t <  hscp_track_eta.size(); t++)
-        {
-          cout << "trkcoll_eta = " << trkcoll_eta [NTRACKs] << endl;
-          cout << "hscp track eta = " << hscp_track_eta[t] << endl;
+      /*
+         double dR = -10;
 
-          cout << "trkcoll_phi = " << trkcoll_phi [NTRACKs] << endl;
-          cout << "hscp track phi = " << hscp_track_phi[t] << endl;
+         if (hscp_track_eta.size() > 0)
+         {
 
-          double d_eta = -100;
+           //association between hscp_tracks with tracks from reco::TrackCollection
+           for (unsigned int t = 0; t <  hscp_track_eta.size(); t++)
+           {
+             cout << "trkcoll_eta = " << trkcoll_eta [NTRACKs] << endl;
+             cout << "hscp track eta = " << hscp_track_eta[t] << endl;
 
-          if (trkcoll_eta [NTRACKs] * hscp_track_eta[t] >= 0)
-          {
-            d_eta = abs(hscp_track_eta[t]) - abs(trkcoll_eta [NTRACKs]);
-          }
-          else if (trkcoll_eta [NTRACKs] * hscp_track_eta[t] <  0)
-          {
-            d_eta = trkcoll_eta [NTRACKs] + hscp_track_eta[t] ;
-          }
+             cout << "trkcoll_phi = " << trkcoll_phi [NTRACKs] << endl;
+             cout << "hscp track phi = " << hscp_track_phi[t] << endl;
 
-          double d_phi = -100;
-          if (trkcoll_phi [NTRACKs] * hscp_track_phi[t] >= 0)
-          {
-            d_phi = abs(hscp_track_phi[t]) - abs(trkcoll_phi [NTRACKs]);
-          }
-          else if (trkcoll_phi [NTRACKs] * hscp_track_phi[t] <  0)
-          {
-            d_phi = trkcoll_phi [NTRACKs] + hscp_track_phi[t];
-          }
+             double d_eta = -100;
 
-          dR = sqrt(pow(d_eta, 2) + pow(d_phi, 2));
+             if (trkcoll_eta [NTRACKs] * hscp_track_eta[t] >= 0)
+             {
+               d_eta = abs(hscp_track_eta[t]) - abs(trkcoll_eta [NTRACKs]);
+             }
+             else if (trkcoll_eta [NTRACKs] * hscp_track_eta[t] <  0)
+             {
+               d_eta = trkcoll_eta [NTRACKs] + hscp_track_eta[t] ;
+             }
+
+             double d_phi = -100;
+             if (trkcoll_phi [NTRACKs] * hscp_track_phi[t] >= 0)
+             {
+               d_phi = abs(hscp_track_phi[t]) - abs(trkcoll_phi [NTRACKs]);
+             }
+             else if (trkcoll_phi [NTRACKs] * hscp_track_phi[t] <  0)
+             {
+               d_phi = trkcoll_phi [NTRACKs] + hscp_track_phi[t];
+             }
+
+             dR = sqrt(pow(d_eta, 2) + pow(d_phi, 2));
 
 
-          cout << "DR = " << dR << endl;
-        }
-      }
-      cout << "Dr out of asso loop = " << dR << endl;
-*/
+             cout << "DR = " << dR << endl;
+           }
+         }
+         cout << "Dr out of asso loop = " << dR << endl;
+      */
       NTRACKs++;
-    }
-
-   
-    NMUONs = 0;
-
-    vector<double> muon_pt_fromcoll;
-    vector<double> segment_compatibility;
-
-    for (size_t i = 0; i < MuonCollH->size();  i++)
-    {
-      if (!MuonCollH.isValid()) {cout << "muon coll is not valid" << endl; continue;}
-
-      const  reco::Muon & p = (*MuonCollH)[i];
-      if (p.pt() < 55) continue;
-      if (p.eta() > 2.5) continue;
-      if (p.eta() < -2.5)  continue;
-
-      mucoll_pt   [NMUONs] = p.pt();
-      mucoll_eta  [NMUONs] = p.eta();
-      mucoll_phi  [NMUONs] = p.phi();
-
-      muon_pt_fromcoll.push_back(p.pt());
-      segment_compatibility.push_back(muon::segmentCompatibility(p));
-      //  cout << "dxy = " << fabs(p.muonBestTrack()->dxy(vertexColl[i].position())) << endl;
-      //  cout << "dz = " << fabs(p.muonBestTrack()->dz(vertexColl[i].position())) << endl;
-      //  cout << "dxy1 = " << fabs(p.bestTrack()->dxy(vertexColl[i].position())) << endl;
-      //  cout << "dz1 = " << fabs(p.bestTrack()->dz(vertexColl[i].position())) << endl;
-
-      NMUONs++;
     }
 
     MyTree->Fill();
