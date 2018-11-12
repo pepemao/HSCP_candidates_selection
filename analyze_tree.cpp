@@ -143,7 +143,7 @@ void analyze_tree()
     TFile *HistoFile   = new TFile("./hscp_histos.root", "RECREATE");
 
     TH1F * hscp_pt_track = new TH1F("hscp_pt_track", " HSCP track pt " , 50, 50, 40000 );
-    TH1F * hscp_pt_comb_mu = new TH1F("hscp_pt_comb_mu", " HSCP comb mu pt " , 50, 50, 40000 );
+    TH1F * hscp_pt_combmu = new TH1F("hscp_pt_combmu", " HSCP comb mu pt " , 50, 50, 40000 );
     //TH1F * hscp_pt_comb_mu = new TH1F("hscp_pt_comb_mu"," HSCP comb mu pt " , 50, 50, 40000 );
 
     for (Int_t i = 0; i < NEntries; i++)
@@ -178,13 +178,14 @@ void analyze_tree()
             cout << "ibeta = " << hscp_ibeta[k] << endl;
 
             hscp_pt_track->Fill(hscp_pt_trkref[k]);
-            hscp_pt_comb_mu - < Fill(hscp_pt_comb_mu[k]);
+            hscp_pt_combmu->Fill(hscp_pt_comb_mu[k]);
         }
         for (int t = 0; t < NTRACKs; t++)
         {
             //cout<<"track_pt = " << trkcoll_pt[t] << endl;
         }
     }
-    hscp_p_1->Write();
+    hscp_pt_track->Write();
+    hscp_pt_combmu->Write();
     HistoFile->Close();
 }
