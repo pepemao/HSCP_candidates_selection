@@ -28,7 +28,7 @@ void analyze_tree()
     gROOT->SetStyle("Plain");
 
     TChain hscp("demo/HscpTree");
-    hscp.Add("Out_data_2016_extrahigh.root");
+    hscp.Add("200k.root");
     hscp.SetBranchStatus("*", 0);
 
     unsigned int    run_num;
@@ -142,17 +142,29 @@ void analyze_tree()
 
     TFile *HistoFile   = new TFile("./hscp_histos.root", "RECREATE");
 
-    TH1F * hscp_pt_track = new TH1F("hscp_pt_track", " HSCP track pt " , 50, 50, 40000 );
+    TH1F * hscp_pt_track_presel = new TH1F("hscp_pt_track_presel", " HSCP track pt " , 50, 50, 40000 );
     TH1F * hscp_pt_combmu = new TH1F("hscp_pt_combmu", " HSCP comb mu pt " , 50, 50, 40000 );
+    TH1F * dr_tracks = new TH1F("dr_tracks", " dR " , 50, -0.5, 0.5 );
+    TH1F * dif_eta = new TH1F("dif_eta", " dEta " , 50, -0.01, 0.01 );
+    TH1F * dif_phi = new TH1F("dif_hi", " dPhi " , 50, -0.01, 0.01 );
+    TH1F * dif_pt = new TH1F("dif_pt", " dPhi " , 50, -4, 4 );
+    TH2F *etaeta = new TH2F("etaeta", "", 40, -3, 3, 40, -3, 3);
     //TH1F * hscp_pt_comb_mu = new TH1F("hscp_pt_comb_mu"," HSCP comb mu pt " , 50, 50, 40000 );
+
+    vector<double> hscp_eta;
+    vector<double> hscp_phi;
+    vector<double> hscp_pt;
 
     for (Int_t i = 0; i < NEntries; i++)
     {
         hscp.GetEntry(i);
 
+        if (NHSCPs != 1) continue;
+        if (NTRACKs != 1) continue;
+
         for (int k = 0; k < NHSCPs; k++)
         {
-            if (hscp_pt_trkref[k] < 13000 && hscp_pt_comb_mu[k] < 13000) continue;
+            //if (hscp_pt_trkref[k] < 2000) continue;
 
             if (hscp_pt_trkref[k] < 55 ) continue;
             if (hscp_track_eta[k] > 2.1) continue;
@@ -169,23 +181,48 @@ void analyze_tree()
             if (hscp_calo_e_over_trk_p[k] < 0.3) continue;
             if (hscp_trk_sum_pt[k] > 50) continue;
 //           cout<<"err = " <<hscp_pterr_trkref[k]<<endl;
-
             cout << "ev nr = " << event_num << endl;
             cout << "hscp trk pt = " << hscp_pt_trkref[k] << endl;
             cout << "hscp_pt comb mu = " << hscp_pt_comb_mu[k] << endl;
             cout << "I h = " << hscp_I_h[k] << endl;
             cout << "I as = " << hscp_I_as[k] << endl;
             cout << "ibeta = " << hscp_ibeta[k] << endl;
+            hscp_pt_track_presel->Fill(hscp_pt_trkref[k]);
 
-            hscp_pt_track->Fill(hscp_pt_trkref[k]);
-            hscp_pt_combmu->Fill(hscp_pt_comb_mu[k]);
         }
         for (int t = 0; t < NTRACKs; t++)
         {
-            //cout<<"track_pt = " << trkcoll_pt[t] << endl;
+
+            double d_eta, d_phi;
+            if (hscp_track_eta[t]*trkcoll_eta[t] > 0)
+            {
+                d_eta = abs(hscp_track_eta[t]) - abs(trkcoll_eta[t]);
+            }      else {d_eta = hscp_track_eta[t] + trkcoll_eta[t]; cout << "wrong" << endl;}
+            if (hscp_track_phi[t]*trkcoll_phi[t] > 0)
+            {
+                d_phi = abs(hscp_track_phi[t]) - abs(trkcoll_phi[t]);
+            }
+            else {d_phi = hscp_track_phi[t] + trkcoll_phi[t]; cout << "wrong" << endl;}
+
+            cout << " hscp eta = " << hscp_track_eta[t] << endl;
+            cout << "track_eta = " << trkcoll_eta[t] << endl;
+            cout << "deta = " << d_eta << endl;
+            cout << "dphi = " << d_phi << endl;
+
+            double Dr = sqrt(pow(d_eta, 2) + pow(d_phi, 2));
+            dr_tracks->Fill(Dr);
+            dif_eta->Fill(d_eta);
+            dif_phi->Fill(d_phi);
+            dif_pt->Fill(hscp_pt_trkref[t] - trkcoll_pt[t]);
+            etaeta->Fill(hscp_track_eta[t], trkcoll_eta[t]) ;
         }
     }
-    hscp_pt_track->Write();
+    hscp_pt_track_presel->Write();
     hscp_pt_combmu->Write();
+    dr_tracks->Write();
+    dif_eta->Write();
+    dif_phi->Write();
+    dif_pt->Write();
+    etaeta->Write();
     HistoFile->Close();
 }
