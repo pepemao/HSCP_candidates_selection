@@ -1,4 +1,3 @@
-
 #include "TApplication.h"
 #include "TROOT.h"
 #include "TSystem.h"
@@ -159,14 +158,12 @@ void analyze_tree()
     unsigned int NEntries = hscp.GetEntries();
     cout << " n entr = " << NEntries << endl;
 
-
     TH1F * hscp_pt_combmu = new TH1F("hscp_pt_combmu", " HSCP comb mu pt " , 50, 50, 40000 );
     TH1F * dr_tracks = new TH1F("dr_tracks", " dR " , 50, -0.5, 0.5 );
     TH1F * dif_eta = new TH1F("dif_eta", " dEta " , 50, -0.01, 0.01 );
     TH1F * dif_phi = new TH1F("dif_hi", " dPhi " , 50, -0.01, 0.01 );
     TH1F * dif_pt = new TH1F("dif_pt", " dPhi " , 50, -4, 4 );
     TH2F *etaeta = new TH2F("etaeta", "", 40, -3, 3, 40, -3, 3);
-
 
     vector<double> hscp_eta;
     vector<double> hscp_phi;
@@ -225,7 +222,6 @@ void analyze_tree()
         int num_pass_q_pt = 0;
         int num_pass_q_pt_eta = 0;
 
-
         if (NHSCPs < 1) continue;
 
         for (int k = 0; k < NHSCPs; k++)
@@ -257,7 +253,6 @@ void analyze_tree()
         bool at_least_two_good = one_good && num_pass_q_pt_eta > 1;
 
         bool more_than_2_good = num_pass_q_pt_eta > 2;
-
 
         switch (label)
         {
@@ -345,7 +340,6 @@ void analyze_tree()
     cout << "double(num_pp_494_trig / num_init_evts) = " << double(num_pp_494_trig / num_init_evts) << endl;
     cout << "gm_494_evt_one_good  = " << gm_494_evt_one_good << endl;
 
-
     const int num_sel_steps = 8;
 
     const char *Steps_names[num_sel_steps] = {"Raw", "Triggered", "Track quality", "Pt > 55 GeV", "|eta| < 2.1", "1st good && PQ", "1 good & 2nd PQ PT", "A/l 2 good"};
@@ -421,7 +415,6 @@ void analyze_tree()
     legend->AddEntry(gm2, " GMStau 494 GeV ");
     legend->Draw();
     HSCP_c->Write();
-
 
     hscp_pt_combmu->Write();
     dr_tracks->Write();
