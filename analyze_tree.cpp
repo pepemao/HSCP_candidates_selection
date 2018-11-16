@@ -226,7 +226,6 @@ void analyze_tree()
 
         for (int k = 0; k < NHSCPs; k++)
         {
-
             pass_quality = abs(hscp_dz[k]) < 0.5 && abs(hscp_dxy[k]) < 0.5 && hscp_trk_valid_frac[k] > 0.8 && hscp_pterr_trkref[k] < 0.25 &&
                            hscp_chi2_ndof[k] < 5 &&  hscp_num_valid_strip_hits[k] >= 6 && hscp_num_valid_pixel_hits[k] >= 2 &&
                            hscp_calo_e_over_trk_p[k] < 0.3 && hscp_trk_sum_pt[k] < 50 ;
@@ -310,7 +309,6 @@ void analyze_tree()
 
         for (int t = 0; t < NTRACKs; t++)
         {
-
             double d_eta, d_phi;
             if (hscp_track_eta[t]*trkcoll_eta[t] > 0)
             {
@@ -346,20 +344,16 @@ void analyze_tree()
 
     Double_t eff_PP308[num_sel_steps] = {1.00, num_pp_308_trig / num_init_evts, pp_308_evt_one_q / num_init_evts,
                                          pp_308_evt_one_q_pt / num_init_evts, pp_308_evt_one_good / num_init_evts, pp_308_evt_one_good_second_q / num_init_evts,
-                                         pp_308_evt_one_good_second_q_pt / num_init_evts, pp_308_evt_at_least_two_good / num_init_evts
-                                        };
+                                         pp_308_evt_one_good_second_q_pt / num_init_evts, pp_308_evt_at_least_two_good / num_init_evts};
     Double_t eff_PP494[num_sel_steps] = {1.00, num_pp_494_trig / num_init_evts, pp_494_evt_one_q / num_init_evts,
                                          pp_494_evt_one_q_pt / num_init_evts, pp_494_evt_one_good / num_init_evts, pp_494_evt_one_good_second_q / num_init_evts,
-                                         pp_494_evt_one_good_second_q_pt / num_init_evts, pp_494_evt_at_least_two_good / num_init_evts
-                                        };
+                                         pp_494_evt_one_good_second_q_pt / num_init_evts, pp_494_evt_at_least_two_good / num_init_evts};
     Double_t eff_GM308[num_sel_steps] = {1.00, num_gm_308_trig / num_init_evts, gm_308_evt_one_q / num_init_evts,
                                          gm_308_evt_one_q_pt / num_init_evts, gm_308_evt_one_good / num_init_evts, gm_308_evt_one_good_second_q / num_init_evts,
-                                         gm_308_evt_one_good_second_q_pt / num_init_evts, gm_308_evt_at_least_two_good / num_init_evts
-                                        };
+                                         gm_308_evt_one_good_second_q_pt / num_init_evts, gm_308_evt_at_least_two_good / num_init_evts};
     Double_t eff_GM494[num_sel_steps] = {1.00, num_gm_494_trig / num_init_evts, gm_494_evt_one_q / num_init_evts,
                                          gm_494_evt_one_q_pt / num_init_evts, gm_494_evt_one_good / num_init_evts, gm_494_evt_one_good_second_q / num_init_evts,
-                                         gm_494_evt_one_good_second_q_pt / num_init_evts, gm_494_evt_at_least_two_good / num_init_evts
-                                        };
+                                         gm_494_evt_one_good_second_q_pt / num_init_evts, gm_494_evt_at_least_two_good / num_init_evts};
 
     TH1F *pp1 = new TH1F("pp1", "PPStau 308 GeV", num_sel_steps, 0, num_sel_steps);
     pp1->SetLineColor(kBlue);
