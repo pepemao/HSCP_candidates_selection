@@ -45,11 +45,7 @@ void analyze_tree()
     int scale = 5;
     TCanvas * HSCP_c = new TCanvas("HSCP_c", "Canv", scale * 128, scale * 96);
     HSCP_c->Divide(1, 1);
-
-
-    TCanvas * HSCP_c1 = new TCanvas("HSCP_c1", "Canv", scale * 128, scale * 96);
-    HSCP_c1->Divide(1, 1);
-
+    
     uint    run_num;
     uint    event_num;
     uint    lumi_sec;
