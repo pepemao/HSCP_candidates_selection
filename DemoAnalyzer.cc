@@ -1,6 +1,7 @@
 /*
  numberOfValidTrackerHits() = numberOfValidPixelHits()+numberOfValidStripHits()
 */
+
 // system include files
 #include <memory>
 #include <fstream>
@@ -20,6 +21,7 @@
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -60,6 +62,14 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
 
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+
+
 #include "Analysis_CommonFunction.h"
 #include "Analysis_TOFUtility.h"
 #include "TCanvas.h"
@@ -69,7 +79,7 @@ using namespace edm;
 using namespace std;
 
 //If use one input file
-//TFile f("/afs/cern.ch/work/o/oshkola/MyEDMAnalyzer/CMSSW_8_0_24_patch1/src/Demo/DemoAnalyzer/plugins/Run2015_254232.root");
+TFile f("/afs/cern.ch/work/o/oshkola/MYDEMOANALYZER_new/CMSSW_9_4_6_patch1/src/Demo/DemoAnalyzer/GMStau_13TeV_M494.root");
 //TFile f("muonTeV_1.root");
 
 //To use multiple input files
@@ -106,6 +116,7 @@ private:
   std::string        TOF_Label       = "combined";
   std::string        TOFdt_Label     = "dt";
   std::string        TOFcsc_Label    = "csc";
+  std::string        Trig_label      = "RECO";
   /*
     std::string        dEdxS_Label     = "dedxASmi";
     std::string        dEdxS_Legend    = "I_{as}";
@@ -126,12 +137,15 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  bool isMC = false;
+
+  bool isMC = true;
 
   unsigned int nruns = 1;
 
-  std::string Runs2016[nruns] = {"279683"};
-  //std::string RunsMC[2] = { "PPStau_13TeV_M1599", "PPStau_13TeV_M494"};
+  std::string Runs2016[nruns] = {"279694"};
+  //std::string Runs2016[nruns] = {"279694", "279766", "279931", "279975", "280242", "281707", "282735", "282919", "283059", "283270", "283283", "283478", "283548", "283865", "284037" };
+
+  //std::string Runs2016[nruns] = {"280242" };//std::string RunsMC[2] = { "PPStau_13TeV_M1599", "PPStau_13TeV_M494"};
   std::string RunMC_PPStau494 = "PPStau_13TeV_M1599";
 
   if (!isMC)
@@ -160,9 +174,11 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   unsigned int    event_num;
   unsigned int    lumi_sec;
   unsigned int    run_num;
+  int             label;
   unsigned int    NHSCPs;
   unsigned int    NTRACKs;
   unsigned int    NMUONs;
+
 
   int    trkcoll_num_valid_tracker_hits  [MAX_TRACKS];
   int    trkcoll_num_lost_tracker_hits   [MAX_TRACKS];
@@ -187,6 +203,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   double mucoll_pt                       [MAX_MUONS];
   double mucoll_eta                      [MAX_MUONS];
   double mucoll_phi                      [MAX_MUONS];
+
 
   double hscp_trk_valid_frac             [MAX_HSCPS];
   double hscp_p                          [MAX_HSCPS];
@@ -213,15 +230,20 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   double hscp_chi2_ndof                  [MAX_HSCPS];
   double hscp_dxy                        [MAX_HSCPS];
   double hscp_dz                         [MAX_HSCPS];
+  double hscp_dz_obs                     [MAX_HSCPS];
+  double hscp_dxy_obs                    [MAX_HSCPS];
   double hscp_trk_sum_pt                 [MAX_HSCPS];
   int    hscp_qual_ind                   [MAX_HSCPS];
+  double hscp_num_tof_meas               [MAX_HSCPS];
+  double hscp_num_dedx_meas              [MAX_HSCPS];
 
   MyTree->Branch("event_num"                            , &event_num            , "event_num/I");
   MyTree->Branch("lumi_sec"                             , &lumi_sec             , "lumi_sec/I");
   MyTree->Branch("run_num"                              , &run_num              , "run_num/I");
+  MyTree->Branch("label"                                , &label                , "label/I");
   MyTree->Branch("NHSCPs"                               , &NHSCPs               , "NHSCPs/I");
   MyTree->Branch("NTRACKs"                              , &NTRACKs              , "NTRACKs/I");
-  MyTree->Branch("NMUONs"                               , &NMUONs                , "NMUONs/I");
+  MyTree->Branch("NMUONs"                               , &NMUONs               , "NMUONs/I");
 
   MyTree->Branch("trkcoll_num_valid_tracker_hits"     , trkcoll_num_valid_tracker_hits     , "trkcoll_num_valid_tracker_hits[NTRACKs]/I");
   MyTree->Branch("trkcoll_num_lost_tracker_hits"      , trkcoll_num_lost_tracker_hits      , "trkcoll_num_lost_tracker_hits[NTRACKs]/I");
@@ -273,8 +295,12 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MyTree->Branch("hscp_chi2_ndof"                     , hscp_chi2_ndof                     , "hscp_chi2_ndof[NHSCPs]/D");
   MyTree->Branch("hscp_dxy"                           , hscp_dxy                           , "hscp_dxy[NHSCPs]/D");
   MyTree->Branch("hscp_dz"                            , hscp_dz                            , "hscp_dz[NHSCPs]/D");
+  MyTree->Branch("hscp_dz_obs"                        , hscp_dz_obs                        , "hscp_dz_obs[NHSCPs]/D");
+  MyTree->Branch("hscp_dxy_obs"                       , hscp_dxy_obs                       , "hscp_dxy_obs[NHSCPs]/D");
   MyTree->Branch("hscp_trk_sum_pt"                    , hscp_trk_sum_pt                    , "hscp_trk_sum_pt[NHSCPs]/D");
   MyTree->Branch("hscp_qual_ind"                      , hscp_qual_ind                      , "hscp_qual_ind[NHSCPs]/I");
+  MyTree->Branch("hscp_num_tof_meas"                  , hscp_num_tof_meas                  , "hscp_num_tof_meas[NHSCPs]/D");
+  MyTree->Branch("hscp_num_dedx_meas"                 , hscp_num_dedx_meas                 , "hscp_num_dedx_meas[NHSCPs]/D");
   //Scale Factors for dE/dx measurements
   double dEdxSF [2] = {
     1.00000,   // [0]  unchanged
@@ -306,11 +332,11 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   unsigned int CurrentRun = 0;
 
 //  For one input file
-//fwlite::Event ev(&f);
+  fwlite::Event ev(&f);
 
 //For several input files (members of string vector fileNames)
 
-  fwlite::ChainEvent ev(fileNames);
+//  fwlite::ChainEvent ev(fileNames);
   std::cout << "ev size = " << ev.size() << std::endl;
 
 //  ofstream file;
@@ -336,14 +362,136 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     event_num = ev.eventAuxiliary().event();
     lumi_sec = ev.eventAuxiliary().luminosityBlock();
     run_num = ev.eventAuxiliary().run();
+    label = 4;
+
+    /*
+
+        if (run_num == 279694)
+        {
+          if (lumi_sec == 113 )
+          {
+            if (event_num != 204899688) continue;
+          }
+          else if (lumi_sec == 488)
+          {
+            if (event_num != 887111876) continue;
+          }
+          else continue;
+        }
+        else if (run_num == 279766)
+        {
+          if (lumi_sec != 332) continue;
+
+          if (event_num != 623714738) continue;
+        }
+        else if (run_num == 279931)
+        {
+          if (lumi_sec != 240) continue;
+
+          if (event_num != 301499938) continue;
+        }
+        else if (run_num == 279975)
+        {
+          if (lumi_sec == 531 )
+          {
+            if (event_num != 852141622) continue;
+          }
+          else if (lumi_sec == 692)
+          {
+            if (event_num != 1.144e+09) continue;
+          }
+          else continue;
+        }
+        else if (run_num == 280242)
+        {
+          if (lumi_sec != 327) continue;
+
+          if (event_num != 592462710) continue;
+        }
+        else if (run_num == 281707)
+        {
+          if (lumi_sec != 1039) continue;
+
+          if (event_num != 1.719e+09) continue;
+        }
+        else if (run_num == 282735)
+        {
+          if (lumi_sec != 144) continue;
+
+          if (event_num != 293685091) continue;
+        }
+        else if (run_num == 282919)
+        {
+          if (lumi_sec != 23) continue;
+
+          if (event_num != 45951248) continue;
+        }
+        else if (run_num == 283059)
+        {
+          if (lumi_sec != 370) continue;
+
+          if (event_num != 697932104) continue;
+        }
+        if (run_num == 283270)
+        {
+          if (lumi_sec == 1039 )
+          {
+            if (event_num != 1.713e+09) continue;
+          }
+          else if (lumi_sec == 477)
+          {
+            if (event_num != 717611856) continue;
+          }
+          else continue;
+        }
+        else if (run_num == 283283)
+        {
+          if (lumi_sec != 440) continue;
+
+          if (event_num != 893765154) continue;
+        }
+
+        else if (run_num == 283478)
+        {
+          if (lumi_sec != 172) continue;
+
+          if (event_num != 187762323) continue;
+        }
+        else if (run_num == 283548)
+        {
+          if (lumi_sec != 174) continue;
+
+          if (event_num != 77304793) continue;
+        }
+        else if (run_num == 283865)
+        {
+          if (lumi_sec != 830) continue;
+
+          if (event_num != 1.468e+09) continue;
+        }
+        else if (run_num == 284037)
+        {
+          if (lumi_sec != 148) continue;
+
+          if (event_num != 281365725) continue;
+        }
+
+    */
+
 
     //Collection of hscp candidates
     fwlite::Handle<susybsm::HSCParticleCollection> hscpCollH;
     hscpCollH.getByLabel(ev, "HSCParticleProducer");
     if (!hscpCollH.isValid()) continue;
     const susybsm::HSCParticleCollection& hscpColl = *hscpCollH;
-    if (!hscpCollH.isValid()) continue;
 
+
+    //Trigger Results
+    fwlite::Handle<edm::TriggerResults> trigResults;
+    trigResults.getByLabel(ev, "TriggerResults");
+    if (!trigResults.isValid()) {cout << "Trig res coll is invalid" << endl; continue;}
+    //const edm::TriggerNames& trigNames = *trigResults;
+    const edm::TriggerNames& trigNames = ev.triggerNames(*trigResults);
 //Map with information about combined 1/beta
     fwlite::Handle<reco::MuonTimeExtraMap> TOFCollH;
     TOFCollH.getByLabel(ev, "muons", TOF_Label.c_str());
@@ -380,7 +528,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vertexCollHandle.getByLabel(ev, "offlinePrimaryVertices");
     if (!vertexCollHandle.isValid()) {printf("Vertex Collection NotFound\n"); return;}
     const std::vector<reco::Vertex>& vertexColl = *vertexCollHandle;
-    if (vertexColl.size() < 1) {printf("NO VERTEX\n"); return;}
+    // if (vertexColl.size() < 1) {printf("NO VERTEX\n"); return;}
 
     fwlite::Handle<CSCSegmentCollection> CSCSegmentCollHandle;
     fwlite::Handle<DTRecSegment4DCollection> DTSegmentCollHandle;
@@ -402,6 +550,58 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //need to access Track Collection because hitpattern.numberOfMuonHits gives 0 in hscp collection
     //and also i can't extract segment compatibility from hscp collection
+
+
+    //const edm::TriggerNames& trigNames = ev.triggerNames(*trigResults);
+
+
+
+
+//   for (unsigned int i = 0, n = trigResults->size(); i < n; ++i)
+//   {
+    //   std::string nameTriggerAll = trigNames.triggerName(i);
+    //    cout << "name = " << nameTriggerAll << endl;
+
+
+
+    // std::string nameTrigger= "HLT_IsoMu27_v13";  //1st Single muon trigger
+    //       std::string nameTrigger = "HLT_Mu50_v11";      //2nd Single muon trigger
+
+
+
+    //    std::string nameTrigger1 = "HLT_Mu18_Mu9_v2";   //Double muon trigger
+
+    //    std::string nameTrigger2 = "HLT_PFMET200_NotCleaned_v5";
+//
+//              std::string nameTrigger3 = "HLT_CaloMET100_NotCleaned_v3";
+//
+//              std::string nameTrigger4 = "HLT_MET105_IsoTrk50_v6";
+
+
+    //     bool passTrigSingle=trigResults->accept(trigNames.triggerIndex(nameTrigger));
+
+    //     bool passTrigDouble=trigResults->accept(trigNames.triggerIndex(nameTrigger1));
+
+    //     bool passTrigPF1=trigResults->accept(trigNames.triggerIndex(nameTrigger2));
+
+//               bool passTrigCalo=trigResults->accept(trigNames.triggerIndex(nameTrigger3));
+
+//              bool passTrigMET=trigResults->accept(trigNames.triggerIndex(nameTrigger4));
+
+
+
+    //   if(passTrigSingle) pass_single = true;
+
+    //   if(passTrigDouble) pass_double = true;
+//   }
+
+
+
+
+
+
+
+
 
     NMUONs = 0;
 
@@ -430,9 +630,19 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     NHSCPs = 0;
+    /*
 
-    vector <double> hscp_track_eta;
-    vector <double> hscp_track_phi;
+       for (unsigned int v = 0; v < vertexColl.size(); v++)
+        {
+          cout << "rho = " << vertexColl[v].position().rho() << endl;
+      if(vertexColl[i].isFake() || abs(vertexColl[i].z())>24 || vertexColl[i].position().rho()>2 || vertexColl[i].ndof()<=4)continue;
+
+      cout << "v dz = " <<
+
+        }
+
+    */
+
 
     for (unsigned int c = 0; c < hscpColl.size(); c++) {
 
@@ -447,15 +657,38 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (muonr.isNull() || !muonr->isStandAloneMuon())continue;
 
-      if (track->hitPattern().numberOfValidPixelHits() <= 1)         continue;
-      if (track->pt() < 55)    continue;
-      if  (track->eta() > 2.1) continue;
-      if  (track->eta() < -2.1)  continue;
+//     if (track->hitPattern().numberOfValidPixelHits() <= 1)         continue;
+//      if (track->pt() < 55)    continue;
+//      if  (track->eta() > 2.5) continue;
+//      if  (track->eta() < -2.5)  continue;
       //if (track->ptError() / track->pt() > 0.25) continue;
       const reco::HitPattern& hp = track->hitPattern();
 
-      hscp_track_eta.push_back(track->eta());
-      hscp_track_phi.push_back(track->phi());
+
+      susybsm::HSCPIsolation hscpIso = IsolationMap.get((size_t)track.key());
+      /*
+
+            if (track->pt() < 55) continue;
+            if (track->eta() > 2.1) continue;
+            if (track->eta() < -2.1) continue;
+
+            if (abs(track->dz(vertexColl[0].position())) > 0.5) continue;
+            if (abs(track->dxy(vertexColl[0].position())) > 0.5) continue;
+
+            if (track->validFraction() < 0.8) continue;
+            if ((track->ptError() / track->pt()) > 0.25 ) continue;
+            if ((track->chi2() / track->ndof()) > 5) continue;
+            if (hp.numberOfValidStripHits()< 6) continue;
+            if (hp.numberOfValidPixelHits()< 2) continue;
+            if (((hscpIso.Get_ECAL_Energy() + hscpIso.Get_HCAL_Energy()) / track->p()) < 0.3) continue;
+            if (hscpIso.Get_TK_SumEt() > 50) continue;
+
+        */
+
+
+      //  cout << "dz = " << track->dz(vertexColl[0].position()) << endl;
+
+
 
       hscp_p                         [NHSCPs]  = track->p();
       hscp_pt_trkref                 [NHSCPs]  = track->pt();
@@ -475,6 +708,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hscp_trk_valid_frac            [NHSCPs] = track->validFraction();
       hscp_track_eta                 [NHSCPs] = track->eta();
       hscp_muon_eta                  [NHSCPs] = muonr->eta();
+      //  cout << "hscp_eta = " << hscp_track_eta [NHSCPs] << endl;
       hscp_track_phi                 [NHSCPs] = track->phi();
       hscp_muon_phi                  [NHSCPs] = muonr->phi();
       hscp_num_valid_pixel_hits      [NHSCPs] = hp.numberOfValidPixelHits();
@@ -484,8 +718,36 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hscp_num_valid_dt_hits         [NHSCPs] = hp.numberOfValidMuonDTHits();
       hscp_num_valid_csc_hits        [NHSCPs] = hp.numberOfValidMuonCSCHits();
       hscp_chi2_ndof                 [NHSCPs] = track->chi2() / track->ndof();
-      hscp_dxy                       [NHSCPs] = track->dxy(vertexColl[c].position());
-      hscp_dz                        [NHSCPs] = track->dz(vertexColl[c].position());
+      hscp_dxy_obs                   [NHSCPs] = track->dxy(vertexColl[0].position());
+      hscp_dz_obs                    [NHSCPs] = track->dz(vertexColl[0].position());
+
+     // cout << "default dz = " << track->dz(vertexColl[0].position()) << endl;
+
+
+      int highestPtGoodVertex = -1;
+
+      double dzmin = 10000;
+
+
+      for (unsigned int v = 0; v < vertexColl.size(); v++)
+      {
+        // cout << "rho = " << vertexColl[v].position().rho() << endl;
+        if (vertexColl[v].isFake() || abs(vertexColl[v].z()) > 24 || vertexColl[v].position().rho() > 2 || vertexColl[v].ndof() <= 4) { continue;}
+
+//  int highestPtGoodVertex = -1;
+
+        //      double dzmin = 10000;
+        if (abs(track->dz (vertexColl[v].position())) < abs(dzmin) ) {
+          dzmin = fabs(track->dz (vertexColl[v].position()));
+          highestPtGoodVertex = v;
+
+        }
+      }
+      if (highestPtGoodVertex < 0) {highestPtGoodVertex = 0;}
+    //  cout << "needed index = " << highestPtGoodVertex << endl;
+    //  cout << "recalc dz = " << track->dz(vertexColl[highestPtGoodVertex].position()) << endl;
+      hscp_dxy                       [NHSCPs] = track->dxy(vertexColl[highestPtGoodVertex].position());
+      hscp_dz                        [NHSCPs] = track->dz(vertexColl[highestPtGoodVertex].position());
 
       string muonref, trackref, isstandalone, isglobal, iscombined;
       muonr.isNull() ? muonref = "no" : muonref = "yes";
@@ -639,7 +901,10 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //   const reco::HitPattern& hp = track->hitPattern();
 
-      susybsm::HSCPIsolation hscpIso = IsolationMap.get((size_t)track.key());
+
+      //   cout << "number of TOF measurements = " << tof->nDof() << endl;
+      //    cout << "err i/beta = " << tof->inverseBetaErr() << endl;
+      //    cout << "Number of dEdx measurements = " << dedxSObjTmp.numberOfMeasurements() << endl;
 
       hscp_I_as                    [NHSCPs] = dedxSObj->dEdx();
       hscp_I_h                     [NHSCPs] = dedxMObj->dEdx();
@@ -647,6 +912,8 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hscp_ibeta_err               [NHSCPs] = tof->inverseBetaErr();
       hscp_calo_e_over_trk_p       [NHSCPs] = (hscpIso.Get_ECAL_Energy() + hscpIso.Get_HCAL_Energy()) / track->p();
       hscp_trk_sum_pt              [NHSCPs] = hscpIso.Get_TK_SumEt();
+      hscp_num_tof_meas            [NHSCPs] = tof->nDof();
+
 
       if (isLoose && isMedium && isTight) hscp_qual_ind [NHSCPs] = 111;
       else if (isLoose && isMedium && !isTight) hscp_qual_ind[NHSCPs] = 110;
@@ -659,16 +926,16 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     } //end of loop over hscp candidates;
 
-    cout << "6\n";
+
     NTRACKs = 0;
 
     for (size_t i = 0; i < TrackColH->size();  i++)
     {
       const  reco::Track & tr = (*TrackColH)[i];
 
-      if (tr.pt() < 55) continue;
-      if (tr.eta() > 2.5) continue;
-      if (tr.eta() < -2.5)  continue;
+      //  if (tr.pt() < 55) continue;
+      //  if (tr.eta() > 2.5) continue;
+      //  if (tr.eta() < -2.5)  continue;
 
       const reco::HitPattern& hp = tr.hitPattern();
 
@@ -691,10 +958,7 @@ DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       trkcoll_dz                      [NTRACKs] = tr.dz(vertexColl[i].position());
       trkcoll_dxy                     [NTRACKs] = tr.dxy(vertexColl[i].position());
 
-      if (hscp_track_eta.size() == 0)
-      {
-        trkcoll_has_hscp              [NTRACKs] = 0;
-      }
+
       /*
          double dR = -10;
 
